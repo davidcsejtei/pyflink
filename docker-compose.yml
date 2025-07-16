@@ -2,42 +2,43 @@ version: '3.8'
 
 services:
   jobmanager:
-    build: .
-    image: custom-flink-py:latest
+    image: apache/flink:1.17.1-scala_2.12
     container_name: jobmanager
-    command: jobmanager
     ports:
       - '8082:8081'
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    command: jobmanager
     networks:
-      - flink-network
+      - flink-net
 
   taskmanager:
-    build: .
-    image: custom-flink-py:latest
+    image: apache/flink:1.17.1-scala_2.12
     container_name: taskmanager
-    command: taskmanager
     depends_on:
       - jobmanager
     environment:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    command: taskmanager
     networks:
-      - flink-network
+      - flink-net
 
   submit:
-    build: .
-    image: custom-flink-py:latest
-    container_name: submit
+    build:
+      context: ./submit
+    container_name: pyflink-submit
     depends_on:
       - jobmanager
     volumes:
-      - ./job:/opt/pyjobs
-    entrypoint: >
-      bash -c "sleep 10 && python3 /opt/pyjobs/telemetry_job.py"
+      - ./jobs:/opt/pyjobs
+    command:
+      [
+        'bash',
+        '-c',
+        './wait-for-jobmanager.sh && python3 /opt/pyjobs/telemetry_job.py'
+      ]
     networks:
-      - flink-network
+      - flink-net
 
 networks:
-  flink-network:
-    driver: bridge
+  flink-net:
