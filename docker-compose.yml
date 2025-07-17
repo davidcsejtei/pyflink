@@ -10,7 +10,7 @@ services:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     command: jobmanager
     networks:
-      - flink-net
+      - flink-network
 
   taskmanager:
     image: apache/flink:1.17.1-scala_2.12
@@ -21,7 +21,7 @@ services:
       - JOB_MANAGER_RPC_ADDRESS=jobmanager
     command: taskmanager
     networks:
-      - flink-net
+      - flink-network
 
   submit:
     build:
@@ -38,7 +38,8 @@ services:
         './wait-for-jobmanager.sh && flink run -py /opt/pyjobs/telemetry_job.py -pyexec python3 -m jobmanager:8081'
       ]
     networks:
-      - flink-net
+      - flink-network
 
 networks:
-  flink-net:
+  flink-network:
+    external: true
