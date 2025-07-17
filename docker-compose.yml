@@ -35,7 +35,7 @@ services:
       [
         'bash',
         '-c',
-        './wait-for-jobmanager.sh && python3 /opt/pyjobs/telemetry_job.py'
+        './wait-for-jobmanager.sh && flink run -py /opt/pyjobs/telemetry_job.py -pyexec python3 -m jobmanager:8081'
       ]
     networks:
       - flink-net
